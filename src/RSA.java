@@ -5,21 +5,21 @@ import java.util.List;
 
 public class RSA {
     private static final int BLOCK_SIZE = 6;
+
     public static BigInteger textToBigInteger(String input) {
         StringBuilder binaryRepresentation = new StringBuilder();
 
-        for (char c : input.toCharArray()) { // Prochází každý znak vstupního textu
+        for (char c : input.toCharArray()) {
             String binary = Integer.toBinaryString(c);
             String resultBinary = String.format("%9s", binary).replace(' ', '0');
             binaryRepresentation.append(resultBinary);
         }
 
-        return new BigInteger(binaryRepresentation.toString(), 2); // 2 znamená, že řetězec je v binární soustavě
+        return new BigInteger(binaryRepresentation.toString(), 2);
     }
 
-
     public static String bigIntegerToText(BigInteger number) {
-        String binaryRepresentation = number.toString(2); // 2 - převod do *binarního* kódu
+        String binaryRepresentation = number.toString(2);
 
         int requiredBits = 9 - (binaryRepresentation.length() % 9);
         if (requiredBits != 9) {
@@ -28,7 +28,7 @@ public class RSA {
 
         StringBuilder text = new StringBuilder();
         for (int i = 0; i < binaryRepresentation.length(); i += 9) {
-            String byteString = binaryRepresentation.substring(i, i + 9); // substring(firstIndex, lastIndex)
+            String byteString = binaryRepresentation.substring(i, i + 9);
             int asciiCode = Integer.parseInt(byteString, 2);
             text.append((char) asciiCode);
         }
@@ -49,52 +49,49 @@ public class RSA {
         return blocks;
     }
 
-
-
-    // (a * x) % m == 1 -> hledáme x
     public static BigInteger modInverse(BigInteger a, BigInteger m) {
         BigInteger[] egcd = extendedGCD(a, m);
         if (!egcd[2].equals(BigInteger.ONE)) {
-            throw new IllegalArgumentException("ModInverse neexistuje");
+            throw new IllegalArgumentException("Modular inverse does not exist");
         }
         return egcd[0].mod(m);
     }
 
     private static BigInteger[] extendedGCD(BigInteger a, BigInteger b) {
         if (b.equals(BigInteger.ZERO)) {
-            return new BigInteger[] {BigInteger.ONE, BigInteger.ZERO, a};
+            return new BigInteger[]{BigInteger.ONE, BigInteger.ZERO, a};
         }
 
         BigInteger[] values = extendedGCD(b, a.mod(b));
         BigInteger x = values[1];
         BigInteger y = values[0].subtract(a.divide(b).multiply(values[1]));
 
-        return new BigInteger[] {x, y, values[2]};
+        return new BigInteger[]{x, y, values[2]};
     }
 
-    public static BigInteger EulerovaFunkce(BigInteger p, BigInteger q) { // phi
+    public static BigInteger eulerTotient(BigInteger p, BigInteger q) {
         if (p.compareTo(BigInteger.ZERO) <= 0 || q.compareTo(BigInteger.ZERO) <= 0) {
-            throw new IllegalArgumentException("Prvočísla musí být větší než 0");
+            throw new IllegalArgumentException("Primes must be greater than 0");
         }
         return p.subtract(BigInteger.ONE).multiply(q.subtract(BigInteger.ONE));
     }
 
-    public static BigInteger find_E(BigInteger p, BigInteger q) {
-        BigInteger phiN = EulerovaFunkce(p, q);  // Ф(N) = (p-1) * (q-1)
+    public static BigInteger findPublicExponent(BigInteger p, BigInteger q) {
+        BigInteger phiN = eulerTotient(p, q);
         SecureRandom rnd = new SecureRandom();
         BigInteger e;
 
         do {
-            e = new BigInteger(phiN.bitLength() - 1, rnd); // e must be less than Ф(N)
-            if (e.testBit(0) == false) { // if (generované číslo je liché)
-                e = e.add(BigInteger.ONE); // if (sudé) +1 aby bylo liché. To je povinné, protože sudé číslo má vždy společného dělitele s Ф(N) (když Ф(N) taky je sudé)
+            e = new BigInteger(phiN.bitLength() - 1, rnd);
+            if (!e.testBit(0)) {
+                e = e.add(BigInteger.ONE);
             }
-        } while (!GCD(e, phiN).equals(BigInteger.ONE)); // Cyklus se opakuje, dokud gcd != 1
+        } while (!gcd(e, phiN).equals(BigInteger.ONE));
 
         return e;
     }
 
-    public static BigInteger GCD(BigInteger a, BigInteger b) {
+    public static BigInteger gcd(BigInteger a, BigInteger b) {
         while (!b.equals(BigInteger.ZERO)) {
             BigInteger temp = b;
             b = a.mod(b);
@@ -104,25 +101,25 @@ public class RSA {
     }
 
     public static BigInteger findPrivateKey(BigInteger e, BigInteger p, BigInteger q) {
-        BigInteger phiN = EulerovaFunkce(p, q);
+        BigInteger phiN = eulerTotient(p, q);
         return modInverse(e, phiN);
     }
 
     public static BigInteger encrypt(BigInteger message, BigInteger N, BigInteger e) {
         if (message.compareTo(N) >= 0) {
-            throw new IllegalArgumentException();
+            throw new IllegalArgumentException("Message must be smaller than modulus N");
         }
         return message.modPow(e, N);
     }
 
     public static BigInteger decrypt(BigInteger encryptedMessage, BigInteger N, BigInteger d) {
         if (encryptedMessage.compareTo(N) >= 0) {
-            throw new IllegalArgumentException();
+            throw new IllegalArgumentException("Ciphertext must be smaller than modulus N");
         }
         return encryptedMessage.modPow(d, N);
     }
 
-    public static BigInteger generate_p_and_q(int digitCount) {
+    public static BigInteger generatePrime(int digitCount) {
         SecureRandom random = new SecureRandom();
         BigInteger result;
 
