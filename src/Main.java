@@ -14,7 +14,7 @@ public class Main extends Application {
 
             Scene scene = new Scene(root, 800, 600);
 
-            primaryStage.setTitle("Digital signature");
+            primaryStage.setTitle("Digital Signature");
             primaryStage.setScene(scene);
             primaryStage.show();
 

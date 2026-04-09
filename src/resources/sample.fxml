@@ -91,7 +91,7 @@
       </VBox>
       <TextField fx:id="openText_textField" layoutX="16.0" layoutY="265.0" prefHeight="26.0" prefWidth="301.0" />
       <Button fx:id="showOpenText_button" layoutX="117.0" layoutY="300.0" mnemonicParsing="false" onAction="#handleShowOpenText" text="Show open text" />
-      <Button fx:id="hashOpenText_button" layoutX="118.0" layoutY="392.0" mnemonicParsing="false" onAction="#handleHashOPenText" text="Hash open text" />
+      <Button fx:id="hashOpenText_button" layoutX="118.0" layoutY="392.0" mnemonicParsing="false" onAction="#handleHashOpenText" text="Hash open text" />
       <TextArea fx:id="hashedText_textArea" layoutX="14.0" layoutY="344.0" prefHeight="26.0" prefWidth="302.0" style="-fx-background-color: #ffd7e9;" />
       <Button fx:id="savePrivateKey_button" layoutX="356.0" layoutY="125.0" mnemonicParsing="false" onAction="#savePrivateKey" text="Save private key" />
       <Button fx:id="showKeys_button" layoutX="355.0" layoutY="159.0" mnemonicParsing="false" onAction="#initializeKey" prefHeight="26.0" prefWidth="102.0" text="Show keys" />
